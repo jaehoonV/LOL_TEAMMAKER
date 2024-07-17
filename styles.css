@@ -1,0 +1,91 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    height: 100vh;
+    padding-top: 100px;
+    margin: 0;
+    background-color: #1a1a1a;
+    color: #ffffff;
+}
+
+.container{
+    display: flex;
+    gap: 30px;
+}
+
+#nickName:-webkit-autofill, #nickName:-webkit-autofill:hover, #nickName:-webkit-autofill:focus, #nickName:-webkit-autofill:active{
+    -webkit-box-shadow: 0 0 0 1000px #333 inset !important;
+    -webkit-text-fill-color: #ffffff; 
+}
+
+#create-user-container {
+    position: relative;
+    opacity: 1;
+    margin-top: 50px;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+#nickName, #score, .nickNameClass, .scoreClass {
+    padding: 10px;
+    border: 1px solid #555;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 200px;
+    background-color: #333;
+    color: #ffffff;
+}
+
+#nickName:focus, #score:focus, .bot_shadow:focus {
+    outline: none;
+    box-shadow: 0px 0px 5px rgba(255, 255, 255, 1);
+}
+
+#nickName:hover, #score:hover, .bot_shadow:hover, #enter_btn:hover {
+    box-shadow: 0px 0px 5px rgba(255, 255, 255, 1);
+}
+
+#score, .scoreClass {
+    width: 70px;
+}
+
+.team-container{
+    width: 100%;
+    padding: 20px;
+    border: 1px solid #555;
+    border-radius: 5px;
+}
+
+#enter_btn{
+    display: block;
+    padding: 10px;
+    border: 1px solid #555;
+    margin: 0 auto;
+    border-radius: 5px;
+    font-size: 16px;
+    background-color: #333;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+#user-container{
+    margin: 20px 0px;
+}
+
+.userCard, .teamCard{
+    margin: 10px 0px;
+    vertical-align: middle;
+    align-items: center;
+    display: flex;
+    gap: 5px;
+}
+
+.deleteCard{
+    cursor: pointer;
+    margin-left: 20px;
+}
+
+.teamName{
+    text-align: center;
+    font-size: 18px;
+}
