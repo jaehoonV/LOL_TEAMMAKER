@@ -1,4 +1,38 @@
 $(function () {
+    const proxy_url = `https://cors-anywhere.herokuapp.com/`; // 로컬 환경에서 cors 문제 해결을 위한 프록시서버 주소
+    /* const account_get_puuid = proxy_url + `https://asia.api.riotgames.com/riot/account/v1/accounts/by-riot-id/`;
+    const account_get_summoner = proxy_url + `https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/`;
+    const account_get_league = proxy_url + `https://kr.api.riotgames.com/lol/league/v4/entries/by-summoner/`;
+    const account_get_champion = proxy_url + `https://kr.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/`; */
+
+    const account_get_puuid = `https://asia.api.riotgames.com/riot/account/v1/accounts/by-riot-id/`;
+    const account_get_summoner = `https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/`;
+    const account_get_league = `https://kr.api.riotgames.com/lol/league/v4/entries/by-summoner/`;
+    const account_get_champion = `https://kr.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/`;
+    
+    const api_key = `RGAPI-00a9abaf-3144-4a8d-8050-754e4acbf14a`;
+
+    /* 챔피언 json data */
+    /* let champion_json_url = proxy_url + `https://ddragon.leagueoflegends.com/cdn/14.14.1/data/ko_KR/champion.json`; */
+    let champion_json_url = `https://ddragon.leagueoflegends.com/cdn/14.14.1/data/ko_KR/champion.json`;
+    let champion_data_map = new Map();
+    let xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            let json = JSON.parse(xmlhttp.responseText);
+            for (const champName in json.data) {
+                if (json.data.hasOwnProperty(champName)) {
+                    const champ = json.data[champName];
+                    champion_data_map.set(Number(champ.key), {id: champ.id, name: champ.name});
+                }
+            }
+        }
+    };
+
+    xmlhttp.open("GET", champion_json_url, true);
+    xmlhttp.send();
+    /* 챔피언 json data */
+
     if (localStorage.getItem('user')) {
         let userArray = JSON.parse(localStorage.getItem('user'));
         userArray.forEach(user => {
@@ -157,5 +191,137 @@ $(function () {
         $('#a_container').append(`<div class="teamName"> Team A - Total Score: ${teamAScore} </div>`);
         $('#b_container').append(`<div class="teamName"> Team B - Total Score: ${teamBScore} </div>`);
     }
+
+    $('#search_btn').on("click", function () {
+        let user_id = $('#userId').val();
+
+        let gameName = user_id.split("#")[0];
+        let tagLine = user_id.split("#")[1];
+
+        let url_get_puuid = account_get_puuid + gameName + "/" + tagLine + "?api_key=" + api_key;
+
+        fetch(url_get_puuid)
+        .then(res => res.json())
+        .then(data => func_puuid(data));
+
+        function func_puuid(data){
+            let puuid_data = data.puuid;
+
+            if(puuid_data){
+                let profile = `<div class="userInfo-container">
+                                    <div style='display: flex;'>
+                                        <div class='profile_icon'></div>    
+                                        <div style='display: flex; flex-direction: column;'>
+                                            <div style='padding: 5px 5px 0px 5px;'>
+                                                <span class='profile_gameName'>${gameName}</span>
+                                                <span class='profile_tagLine'>#${tagLine}</span>
+                                            </div>
+                                            <div style='padding: 5px 5px 0px 8px;'>
+                                                <span class='profile_level'>레벨 : <span class='profile_level_tag'></span></span>
+                                            </div>
+                                            <div style='padding: 5px 5px 0px 8px; font-size: 12px;'>
+                                                <span class='solo_rank'><span style='width: 130px; display: inline-block;'>솔로 : <span class='tier_solo'></span></span> <span class='cnt_solo'></span>전 승 : <span class='wins_solo'></span> / 패 : <span class='losses_solo'></span> (<span class='rate_solo'></span>%)</span>
+                                                <span class='free_rank'><span style='width: 130px; display: inline-block;'>자유 : <span class='tier_free'></span></span> <span class='cnt_free'></span>전 승 : <span class='wins_free'></span> / 패 : <span class='losses_free'></span> (<span class='rate_free'></span>%)</span>
+                                            </div>
+                                        </div>    
+                                    </div>
+                                    <div style='display: flex; flex-direction: column;'>
+                                        <span style='font-size:14px; margin:5px;'>숙련도</span>
+                                        <div class='top_champion' style='display: flex;'></div>
+                                    </div>
+                                    
+                                </div>`;
+
+                let newProfile = $(profile).appendTo('#search-container');
+
+                let url_get_summoner = account_get_summoner + puuid_data + "?api_key=" + api_key;
+
+                fetch(url_get_summoner)
+                .then(res => res.json())
+                .then(data => func_summoner(data, newProfile));
+
+                let url_get_champion = account_get_champion + puuid_data + "?api_key=" + api_key;
+
+                fetch(url_get_champion)
+                .then(res => res.json())
+                .then(data => func_champion(data, newProfile));
+
+            }
+            
+        }
+
+        function func_summoner(data, newProfile){
+            let summoner_data = data;
+            let profile_icon = `<img style='width: 100px;' src='https://ddragon.leagueoflegends.com/cdn/14.14.1/img/profileicon/${summoner_data.profileIconId}.png'>`;
+            newProfile.find('.profile_icon').append(profile_icon);
+            newProfile.find('.profile_level').append(summoner_data.summonerLevel);
+
+            let url_get_league = account_get_league + summoner_data.id + "?api_key=" + api_key;
+
+            fetch(url_get_league)
+            .then(res => res.json())
+            .then(data => {
+                let tier_solo = '';
+                let wins_solo = 0;
+                let losses_solo = 0;
+                let cnt_solo = 0;
+                let rate_solo = 0;
+                let tier_free = '';
+                let wins_free = 0;
+                let losses_free = 0;
+                let cnt_free = 0;
+                let rate_free = 0;
+
+                data.forEach(d => {
+                    if(d.queueType === 'RANKED_SOLO_5x5'){
+                        tier_solo = d.tier + ' ' + d.rank;
+                        wins_solo = d.wins;
+                        losses_solo = d.losses;
+                        cnt_solo = wins_solo + losses_solo;
+                        rate_solo = (wins_solo / cnt_solo * 100).toFixed(1);
+                    }else if(d.queueType === 'RANKED_FLEX_SR'){
+                        tier_free = d.tier + ' ' + d.rank;
+                        wins_free = d.wins;
+                        losses_free = d.losses;
+                        cnt_free = wins_free + losses_free;
+                        rate_free = (wins_free / cnt_free * 100).toFixed(1);
+                    }
+                });
+
+                newProfile.find('.tier_solo').append(tier_solo);
+                newProfile.find('.wins_solo').append(wins_solo);
+                newProfile.find('.losses_solo').append(losses_solo);
+                newProfile.find('.cnt_solo').append(cnt_solo);
+                newProfile.find('.rate_solo').append(rate_solo);
+
+                newProfile.find('.tier_free').append(tier_free);
+                newProfile.find('.wins_free').append(wins_free);
+                newProfile.find('.losses_free').append(losses_free);
+                newProfile.find('.cnt_free').append(cnt_free);
+                newProfile.find('.rate_free').append(rate_free);
+                
+            });
+        }
+
+        function func_champion(data, newProfile){
+            let top_champion = ``;
+            for(let i in data){
+                if(i > 7) break;
+                let champ_id = data[i].championId;
+                let champ_level = data[i].championLevel;
+                let champion = champion_data_map.get(champ_id);
+
+                top_champion += `<div>
+                                    <div><img style='width: 50px;' src='https://ddragon.leagueoflegends.com/cdn/14.14.1/img/champion/${champion.id}.png'></div>
+                                    <div style='display:flex; font-size:12px;'>
+                                        <div style='margin: 0 auto;'>${champ_level}</div>
+                                    </div>
+                                </div>`;
+            }
+
+            newProfile.find('.top_champion').append(top_champion);
+        }
+
+    })
 
 })
