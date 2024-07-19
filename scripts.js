@@ -57,6 +57,12 @@ $(function () {
         }
     })
 
+    $('#userId').on("keyup", function (key) {
+        if (key.keyCode == 13) {
+            $('#search_btn').click();
+        }
+    })
+
     function createUserCard() {
         let nickName = $('#nickName').val();
         let score = $('#score').val();
