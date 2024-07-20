@@ -3,7 +3,6 @@ body {
     display: flex;
     justify-content: center;
     height: 100vh;
-    padding-top: 100px;
     margin: 0;
     background-color: #1a1a1a;
     color: #ffffff;
@@ -12,6 +11,7 @@ body {
 .container{
     display: flex;
     gap: 30px;
+    margin-top: 100px;
 }
 
 #nickName:-webkit-autofill, #nickName:-webkit-autofill:hover, #nickName:-webkit-autofill:focus, #nickName:-webkit-autofill:active{
@@ -31,7 +31,7 @@ body {
     border: 1px solid #555;
     border-radius: 5px;
     font-size: 16px;
-    width: 200px;
+    width: 250px;
     background-color: #333;
     color: #ffffff;
 }
@@ -89,9 +89,22 @@ body {
     gap: 5px;
 }
 
-.deleteCard{
+.deleteCard, .userInfo_drop_btn{
     cursor: pointer;
-    margin-left: 20px;
+    padding: 3px 6px;
+    border: 1px solid #ffffff;
+    border-radius: 50%;
+    font-size: 12px;
+    transition: 0.5s;
+}
+
+.deleteCard{
+    margin-left: 10px;
+}
+
+.deleteCard:hover, .userInfo_drop_btn:hover{
+    background-color: #ffffff;
+    color: #1a1a1a;
 }
 
 .teamName{
@@ -117,4 +130,44 @@ body {
     gap: 10px; 
     margin-top: 10px; 
     flex-direction: column;
+}
+
+.top_champion{
+    display: flex; 
+    gap: 5px;
+    overflow-y: auto;
+    padding-bottom: 10px;
+}
+
+.top_champion::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+}
+
+.top_champion::-webkit-scrollbar-button {
+    width: 7px;
+    height: 7px;
+}
+
+.top_champion::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+.top_champion::-webkit-scrollbar-thumb {
+    background: #e5e5e5;
+    border: 1px solid #e5e5e5;
+    border-radius: 5px;
+    cursor: grab;
+}
+.top_champion::-webkit-scrollbar-track {
+    background: transparent;
+    border: 0 none transparent;
+}
+
+.champ_level_tag{
+    background: #ffffff;
+    color: black;
+    padding: 1px 6px;
+    font-size: 11px;
+    border-radius: 7px;
 }
