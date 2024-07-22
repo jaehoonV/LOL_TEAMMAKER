@@ -1,0 +1,61 @@
+
+# match-v5
+info
+└	gameId
+	mapId
+	gameDuration
+	gameEndTimestamp
+	gameStartTimestamp
+	gameMode
+	gameType
+    queueId
+	participants
+	└	champExperience
+		champLevel
+		championId
+		championName
+		goldEarned
+		individualPosition
+		item0
+		item1
+		item2
+		item3
+		item4
+		item5
+		item6
+		kills
+		assists
+		deaths
+		lane
+		riotIdGameName
+		riotIdTagline
+		role
+		totalDamageDealtToChampions
+		totalDamageTaken
+		teamId
+		win
+		puuid
+		perks
+		└	styles
+			└	description
+				└	perk
+					var1
+					var2
+					var3
+				selections
+				style
+
+	teams
+	└	bans
+			championId
+			pickTurn
+		teamId
+		win
+
+# queueId  
+일반 490(빠른대전), 400(드래프트), 430(블라인드)
+솔로 랭크 420
+자유 랭크 440
+무작위 총력전 450
+
+# perks - styles - description = primaryStyle(핵심 룬), subStyle(보조 룬)
