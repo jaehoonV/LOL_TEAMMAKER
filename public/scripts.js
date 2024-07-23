@@ -71,6 +71,27 @@ $(function () {
     spell_xmlhttp.send();
     /* 스펠 json data */
 
+    /* 룬 json data */
+    let rune_json_url = `https://ddragon.leagueoflegends.com/cdn/14.14.1/data/ko_KR/runesReforged.json`;
+    let rune_data_map = new Map();
+    let rune_xmlhttp = new XMLHttpRequest();
+    rune_xmlhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            let json = JSON.parse(rune_xmlhttp.responseText);
+            for (const r in json) {
+                if (json.hasOwnProperty(r)) {
+                    const rune = json[r];
+                    rune_data_map.set(Number(rune.id), {id: rune.id, icon: rune.icon, name : rune.name, runes : rune.slots[0].runes});
+                }
+            }
+            console.log(rune_data_map);
+        }
+    };
+
+    rune_xmlhttp.open("GET", rune_json_url, true);
+    rune_xmlhttp.send();
+    /* 스펠 json data */
+
     if (localStorage.getItem('user')) {
         let userArray = JSON.parse(localStorage.getItem('user'));
         userArray.forEach(user => {
@@ -471,18 +492,31 @@ $(function () {
                     console.log("win = " + data.win);
                     console.log("puuid = " + data.puuid);
                     let rune = data.perks.styles;
-                    console.log("rune = " + rune);
-                    let primary_rune = '';
-                    let sub_rune = '';
+                    console.log("rune = " + rune); 
+                    let primary_rune;
+                    let primary_rune_top;
+                    let sub_rune;
                     rune.forEach(data => {
                         if(data.description === 'primaryStyle'){
-                            primary_rune = data.selections[0].perk;
+                            primary_rune = data.style;
+                            primary_rune_top = data.selections[0].perk;
                         }else{
                             sub_rune = data.style;
                         }
                     })
                     console.log("primary_rune = " + primary_rune);
+                    console.log("primary_rune_top = " + primary_rune_top);
                     console.log("sub_rune = " + sub_rune);
+
+                    let primary_rune_top_img = '';
+                    let primary_rune_top_data_runes = rune_data_map.get(primary_rune).runes;
+                    console.log("primary_rune_top_data_runes = ", primary_rune_top_data_runes);
+                    primary_rune_top_data_runes.forEach(data => {
+                        if(data.id === primary_rune_top){
+                            primary_rune_top_img = data.icon;
+                        }
+                    });
+
 
                     if(data.win){
                         match_info += `<div class='match_info_div win_match'>`;
@@ -495,9 +529,13 @@ $(function () {
                                             </div>    
                                             <span class='match_info_champLevel'>${data.champLevel}</span>
                                         </div>
-                                        <div style='display: flex; flex-direction: column; justify-content: center; gap: 3px;'>
+                                        <div class='match_info_spell_rune_img'>
                                             <div style='width: 22px; heigth: 22px'><img style='width: 100%; height: 100%; object-fit: cover;' src='https://ddragon.leagueoflegends.com/cdn/14.14.1/img/spell/${summoner1.id}.png'></div>
                                             <div style='width: 22px; heigth: 22px'><img style='width: 100%; height: 100%; object-fit: cover;' src='https://ddragon.leagueoflegends.com/cdn/14.14.1/img/spell/${summoner2.id}.png'></div>
+                                        </div>
+                                        <div class='match_info_spell_rune_img'>
+                                            <div style='width: 22px; heigth: 22px'><img style='width: 100%; height: 100%; object-fit: cover;' src='/img/${primary_rune_top_img}'></div>
+                                            <div style='width: 22px; heigth: 22px'><img style='width: 100%; height: 100%; object-fit: cover;' src='/img/${rune_data_map.get(sub_rune).icon}'></div>
                                         </div>
                                     </div>`;
                 }
