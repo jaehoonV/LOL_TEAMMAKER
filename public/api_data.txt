@@ -33,22 +33,22 @@ info
 		totalDamageDealtToChampions
 		totalDamageTaken
 		teamId
+		teamPosition
 		win
 		puuid
-		perks
-		└	styles
-			└	description
-				└	perk
-					var1
-					var2
-					var3
-				selections
-				style
 
 	teams
 	└	bans
-			championId
+		└	championId
 			pickTurn
+		objectives
+		└	baron
+			champion
+			dragon
+			horde
+			inhibitor
+			riftHerald
+			tower
 		teamId
 		win
 
@@ -57,5 +57,3 @@ info
 솔로 랭크 420
 자유 랭크 440
 무작위 총력전 450
-
-# perks - styles - description = primaryStyle(핵심 룬), subStyle(보조 룬)
