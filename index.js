@@ -31,33 +31,6 @@ app.get('/get_puuid/:gameName/:tagLine/:api_key', async (req, res) => {
     }
 });
 
-app.get('/get_matchesID/:puuid/:api_key', async (req, res) => {
-    const { puuid, api_key } = req.params;
-    const url = `https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/${encodeURIComponent(puuid)}/ids?start=0&count=30&api_key=${encodeURIComponent(api_key)}`;
-   
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        res.json(data);
-    } catch (error) {
-        res.status(500).send('Error fetching matches data');
-    }
-});
-
-app.get('/get_matchInfo/:matchID/:api_key', async (req, res) => {
-    const { matchID, api_key } = req.params;
-    const url = `https://asia.api.riotgames.com/lol/match/v5/matches/${encodeURIComponent(matchID)}?api_key=${encodeURIComponent(api_key)}`;
-   
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        res.json(data);
-    } catch (error) {
-        res.status(500).send('Error fetching matches data');
-    }
-});
-
-
 http.createServer(app).listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 
