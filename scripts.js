@@ -1,20 +1,32 @@
 $(function () {
     const proxy_url = `https://cors-anywhere.herokuapp.com/`; // 로컬 환경에서 cors 문제 해결을 위한 프록시서버 주소
-    /* const account_get_puuid = proxy_url + `https://asia.api.riotgames.com/riot/account/v1/accounts/by-riot-id/`;
+    const account_get_puuid = proxy_url + `https://asia.api.riotgames.com/riot/account/v1/accounts/by-riot-id/`;
     const account_get_summoner = proxy_url + `https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/`;
     const account_get_league = proxy_url + `https://kr.api.riotgames.com/lol/league/v4/entries/by-summoner/`;
-    const account_get_champion = proxy_url + `https://kr.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/`; */
+    const account_get_champion = proxy_url + `https://kr.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/`;
 
-    const account_get_puuid = `https://asia.api.riotgames.com/riot/account/v1/accounts/by-riot-id/`;
+    /* const account_get_puuid = `https://asia.api.riotgames.com/riot/account/v1/accounts/by-riot-id/`;
     const account_get_summoner = `https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/`;
     const account_get_league = `https://kr.api.riotgames.com/lol/league/v4/entries/by-summoner/`;
-    const account_get_champion = `https://kr.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/`;
+    const account_get_champion = `https://kr.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/`; */
     
-    const api_key = `RGAPI-00a9abaf-3144-4a8d-8050-754e4acbf14a`;
+    let api_key;
+
+    let api_key_xmlhttp = new XMLHttpRequest();
+    let url = "./public/api_key.json";
+
+    api_key_xmlhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            let api_key_json = JSON.parse(api_key_xmlhttp.responseText);
+            api_key = api_key_json.api_key;
+        }
+    };
+    api_key_xmlhttp.open("GET", url, true);
+    api_key_xmlhttp.send();
 
     /* 챔피언 json data */
-    /* let champion_json_url = proxy_url + `https://ddragon.leagueoflegends.com/cdn/14.14.1/data/ko_KR/champion.json`; */
-    let champion_json_url = `https://ddragon.leagueoflegends.com/cdn/14.14.1/data/ko_KR/champion.json`;
+    let champion_json_url = proxy_url + `https://ddragon.leagueoflegends.com/cdn/14.14.1/data/ko_KR/champion.json`;
+    /* let champion_json_url = `https://ddragon.leagueoflegends.com/cdn/14.14.1/data/ko_KR/champion.json`; */
     let champion_data_map = new Map();
     let xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function () {
