@@ -1,5 +1,3 @@
-import * as basic from "./basic.js"
-
 $(function () {
     const account_get_puuid = `https://asia.api.riotgames.com/riot/account/v1/accounts/by-riot-id/`;
     const account_get_summoner = `https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/`;
@@ -65,6 +63,7 @@ $(function () {
                     spell_data_map.set(Number(spell.key), {id: spell.id, name: spell.name, description : spell.description});
                 }
             }
+            console.log(spell_data_map);
         }
     };
 
@@ -85,32 +84,13 @@ $(function () {
                     rune_data_map.set(Number(rune.id), {id: rune.id, icon: rune.icon, name : rune.name, runes : rune.slots[0].runes});
                 }
             }
+            console.log(rune_data_map);
         }
     };
 
     rune_xmlhttp.open("GET", rune_json_url, true);
     rune_xmlhttp.send();
-    /* 룬 json data */
-
-    /* 아이템 json data */
-    let item_json_url = `https://ddragon.leagueoflegends.com/cdn/14.14.1/data/ko_KR/item.json`;
-    let item_data_map = new Map();
-    let item_xmlhttp = new XMLHttpRequest();
-    item_xmlhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-            let json = JSON.parse(item_xmlhttp.responseText).data;
-            for (const i in json) {
-                if (json.hasOwnProperty(i)) {
-                    const item = json[i];
-                    item_data_map.set(Number(i), {name : item.name, description : item.description, plaintext : item.plaintext, image : item.image.full});
-                }
-            }
-        }
-    };
-
-    item_xmlhttp.open("GET", item_json_url, true);
-    item_xmlhttp.send();
-    /* 아이템 json data */
+    /* 스펠 json data */
 
     if (localStorage.getItem('user')) {
         let userArray = JSON.parse(localStorage.getItem('user'));
@@ -302,16 +282,6 @@ $(function () {
 
         let url_get_puuid = `/get_puuid/${gameName}/${tagLine}/${api_key}`;
 
-        // 포지션 map
-        let position_cnt_map = new Map([
-            ["TOP", 0],
-            ["JUNGLE", 0],
-            ["MIDDLE", 0],
-            ["BOTTOM", 0],
-            ["UTILITY", 0],
-            ["UNKNOWN", 0]
-        ]);
-
         fetch(url_get_puuid)
         .then(res => res.json())
         .then(data => func_puuid(data));
@@ -335,15 +305,11 @@ $(function () {
                                             <div style='padding: 5px 5px 0px 8px;'>
                                                 <span class='profile_level'>레벨 : <span class='profile_level_tag'></span></span>
                                             </div>
-                                            <div style='padding: 5px 5px 0px 8px; font-size: 12px; display: flex; flex-direction: column;'>
+                                            <div style='padding: 5px 5px 0px 8px; font-size: 12px;'>
                                                 <span class='solo_rank'><span style='width: 150px; display: inline-block;'>솔로 : <span class='tier_solo'></span></span> <span class='cnt_solo'></span>전 승 : <span class='wins_solo'></span> / 패 : <span class='losses_solo'></span> (<span class='rate_solo'></span>%)</span>
                                                 <span class='free_rank'><span style='width: 150px; display: inline-block;'>자유 : <span class='tier_free'></span></span> <span class='cnt_free'></span>전 승 : <span class='wins_free'></span> / 패 : <span class='losses_free'></span> (<span class='rate_free'></span>%)</span>
                                             </div>
-                                        </div>
-                                        <div class='ranked_emblem_div'></div>    
-                                        <div class='positionChart'>
-                                            <canvas id='chart'></canvas>
-                                        </div>
+                                        </div>    
                                     </div>
                                     <div style='display: flex; flex-direction: column;'>
                                         <span style='font-size:14px; margin:5px;'>숙련도</span>
@@ -398,14 +364,11 @@ $(function () {
                 let losses_solo = 0;
                 let cnt_solo = 0;
                 let rate_solo = 0;
-                let ranked_solo = '';
                 let tier_free = '';
                 let wins_free = 0;
                 let losses_free = 0;
                 let cnt_free = 0;
                 let rate_free = 0;
-                let ranked_free = '';
-                let emblem_img = '';
 
                 data.forEach(d => {
                     if(d.queueType === 'RANKED_SOLO_5x5'){
@@ -414,24 +377,14 @@ $(function () {
                         losses_solo = d.losses;
                         cnt_solo = wins_solo + losses_solo;
                         rate_solo = (wins_solo / cnt_solo * 100).toFixed(1);
-                        ranked_solo = d.tier;
                     }else if(d.queueType === 'RANKED_FLEX_SR'){
                         tier_free = d.tier + ' ' + d.rank;
                         wins_free = d.wins;
                         losses_free = d.losses;
                         cnt_free = wins_free + losses_free;
                         rate_free = (wins_free / cnt_free * 100).toFixed(1);
-                        ranked_free = d.tier;
                     }
                 });
-
-                if(ranked_solo){
-                    emblem_img = `<img style='width: 100%; height: 100%; object-fit: cover;' src='/img/ranked-emblem/emblem-${ranked_solo}.png'>`;
-                }else{
-                    if(ranked_free){
-                        emblem_img = `<img style='width: 100%; height: 100%; object-fit: cover;' src='/img/ranked-emblem/emblem-${ranked_free}.png'>`;
-                    }
-                }
 
                 newProfile.find('.tier_solo').append(tier_solo);
                 newProfile.find('.wins_solo').append(wins_solo);
@@ -444,8 +397,6 @@ $(function () {
                 newProfile.find('.losses_free').append(losses_free);
                 newProfile.find('.cnt_free').append(cnt_free);
                 newProfile.find('.rate_free').append(rate_free);
-
-                newProfile.find('.ranked_emblem_div').append(emblem_img);
                 
             });
         }
@@ -486,10 +437,7 @@ $(function () {
                 try {
                     const res = await fetch(url_get_matchesID);
                     const matchData = await res.json();
-                    if(newProfile.find('.match_info_div').length > 9) {
-                        func_position_setting(position_cnt_map, newProfile);
-                        break;
-                    }
+                    if(newProfile.find('.match_info_div').length > 9) break;
                     func_matchInfo(matchData, newProfile, puuid_data);
                 } catch (error) {
                     console.error(`Error fetching match data for matchID ${matchID}:`, error);
@@ -499,69 +447,55 @@ $(function () {
 
         function func_matchInfo(data, newProfile, puuid_data){
             console.log(data);
-            let gameStartTimestamp = data.info.gameStartTimestamp; // 게임 시작 시간 타임스탬프
-            let gameDuration = Math.floor(data.info.gameDuration / 60 ); // 게임 진행 시간 분
-            let gameDuration_seconds = data.info.gameDuration % 60; // 게임 진행 시간 초
-            let queueId = data.info.queueId; // 큐 타입 (일반, 솔로 랭크, 자유 랭크, 무작위 총력전)
-            let participants = data.info.participants; // 참가자 정보
-            let teams_info = data.info.teams; // 팀 정보
-            let teams_map = new Map();
-            for (const t in teams_info) {
-                if (teams_info.hasOwnProperty(t)) {
-                    const team = teams_info[t];
-                    teams_map.set(Number(team.teamId), 
-                    {
-                        win: team.win, 
-                        bans: team.bans,
-                        baron: team.objectives.baron, // 바론
-                        champion: team.objectives.champion, // 챔피언
-                        dragon: team.objectives.dragon, // 드래곤
-                        horde: team.objectives.horde, // 유충
-                        inhibitor: team.objectives.inhibitor,
-                        riftHerald: team.objectives.riftHerald, // 전령
-                        tower: team.objectives.tower,
-                    });
-                }
-            }
-
+            console.log('id = ' + data.info.gameId);
+            console.log('mapId = ' + data.info.mapId);
+            console.log('gameMode = ' + data.info.gameMode);
+            console.log('gameType = ' + data.info.gameType);
+            console.log('gameDuration = ' + data.info.gameDuration);
+            console.log('gameStartTimestamp = ' + data.info.gameStartTimestamp);
+            console.log('teams = ' + data.info.teams);
+            console.log('queueId = ' + data.info.queueId);
+            let queueId = data.info.queueId;
+            let participants = data.info.participants;
             let match_info = ``;
             participants.forEach(data => {
                 if(data.puuid === puuid_data && queueId_arr.includes(queueId)){
+                    console.log("queueId_name = " + queueId_name_map.get(queueId));
+                    console.log("championId = " + data.championId);
+                    console.log("championName = " + data.championName);
+                    console.log("champLevel = " + data.champLevel);
                     console.log("champExperience = " + data.champExperience);
                     console.log("goldEarned = " + data.goldEarned);
-                    let teamId = data.teamId; // 팀 id
-                    let teamPosition = data.teamPosition || 'UNKNOWN' // 포지션
-                    let summoner1 = spell_data_map.get(data.summoner1Id); // 스펠1 (id, name, description)
-                    let summoner2 = spell_data_map.get(data.summoner2Id); // 스펠2 (id, name, description)
-                    let kills = data.kills; // 킬
-                    let assists = data.assists; // 어시스트
-                    let deaths = data.deaths; // 데스
-                    let kda = ''; // kda
-                    if(deaths == 0){
-                        kda = 'Perfect';
-                    }else{
-                        kda = ((kills + assists)/deaths).toFixed(2) + ' : 1';
-                    }
-
-                    let team_info = teams_map.get(teamId);
-                    let team_kills = team_info.champion.kills;
-                    let team_rate = ''; // 킬 관여율
-                    if(team_kills == 0){
-                        team_rate = '0%'
-                    }else{
-                        team_rate = ((kills + assists) / team_kills * 100).toFixed(0) + '%';
-                    }
-
-                    let position_cnt = position_cnt_map.get(teamPosition) || 0;
-                    position_cnt++;
-                    position_cnt_map.set(teamPosition, position_cnt);
-
+                    console.log("individualPosition = " + data.individualPosition);
+                    console.log("item0 = " + data.item0);
+                    console.log("item1 = " + data.item1);
+                    console.log("item2 = " + data.item2);
+                    console.log("item3 = " + data.item3);
+                    console.log("item4 = " + data.item4);
+                    console.log("item5 = " + data.item5);
+                    console.log("item6 = " + data.item6);
+                    console.log("summoner1Id = " + data.summoner1Id);
+                    console.log("summoner2Id = " + data.summoner2Id);
+                    let summoner1 = spell_data_map.get(data.summoner1Id);
+                    let summoner2 = spell_data_map.get(data.summoner2Id);
+                    console.log("summoner1 = " + summoner1.id + " / " + summoner1.name + " / " + summoner1.description);
+                    console.log("summoner2 = " + summoner2.id + " / " + summoner2.name + " / " + summoner2.description);
+                    console.log("kills = " + data.kills);
+                    console.log("assists = " + data.assists);
+                    console.log("deaths = " + data.deaths);
+                    console.log("riotIdGameName = " + data.riotIdGameName);
+                    console.log("riotIdTagline = " + data.riotIdTagline);
+                    console.log("role = " + data.role);
                     console.log("totalDamageDealtToChampions = " + data.totalDamageDealtToChampions);
                     console.log("totalDamageTaken = " + data.totalDamageTaken);
-                    let rune = data.perks.styles; // 룬 정보
-                    let primary_rune; // 핵심 룬
-                    let primary_rune_top; // 핵심 룬
-                    let sub_rune; // 보조 룬
+                    console.log("teamId = " + data.teamId);
+                    console.log("win = " + data.win);
+                    console.log("puuid = " + data.puuid);
+                    let rune = data.perks.styles;
+                    console.log("rune = " + rune); 
+                    let primary_rune;
+                    let primary_rune_top;
+                    let sub_rune;
                     rune.forEach(data => {
                         if(data.description === 'primaryStyle'){
                             primary_rune = data.style;
@@ -570,206 +504,46 @@ $(function () {
                             sub_rune = data.style;
                         }
                     })
+                    console.log("primary_rune = " + primary_rune);
+                    console.log("primary_rune_top = " + primary_rune_top);
+                    console.log("sub_rune = " + sub_rune);
 
                     let primary_rune_top_img = '';
                     let primary_rune_top_data_runes = rune_data_map.get(primary_rune).runes;
-
+                    console.log("primary_rune_top_data_runes = ", primary_rune_top_data_runes);
                     primary_rune_top_data_runes.forEach(data => {
                         if(data.id === primary_rune_top){
                             primary_rune_top_img = data.icon;
                         }
                     });
 
-                    let item0 = data.item0 != 0 ? item_data_map.get(data.item0) : '';
-                    let item1 = data.item1 != 0 ? item_data_map.get(data.item1) : '';
-                    let item2 = data.item2 != 0 ? item_data_map.get(data.item2) : '';
-                    let item3 = data.item3 != 0 ? item_data_map.get(data.item3) : '';
-                    let item4 = data.item4 != 0 ? item_data_map.get(data.item4) : '';
-                    let item5 = data.item5 != 0 ? item_data_map.get(data.item5) : '';
-                    let item6 = data.item6 != 0 ? item_data_map.get(data.item6) : '';
 
-                    let item_content = `<div style='display: flex;'>
-                                            <div class='img22 img_border'>`;
-                    if(item0){
-                        item_content += `       <img src='https://ddragon.leagueoflegends.com/cdn/14.14.1/img/item/${item0.image}'></img>
-                                            </div>`;
+                    if(data.win){
+                        match_info += `<div class='match_info_div win_match'>`;
                     }else{
-                        item_content += `   </div>`;
+                        match_info += `<div class='match_info_div defeated_match'>`;
                     }
-
-                    if(item1){
-                        item_content += `   <div class='img22 img_border'>
-                                                <img src='https://ddragon.leagueoflegends.com/cdn/14.14.1/img/item/${item1.image}'></img>
-                                            </div>`;
-                    }else{
-                        item_content += `<div class='img22 img_border'></div>`;
-                    }
-
-                    if(item2){
-                        item_content += `   <div class='img22 img_border'>
-                                                <img src='https://ddragon.leagueoflegends.com/cdn/14.14.1/img/item/${item2.image}'></img>
-                                            </div>`;
-                    }else{
-                        item_content += `   <div class='img22 img_border'></div>`;
-                    }
-
-                    if(item6){
-                        item_content += `   <div class='img22 img_border'>
-                                                <img src='https://ddragon.leagueoflegends.com/cdn/14.14.1/img/item/${item6.image}'></img>
-                                            </div></div>
-                                        <div style='display: flex;'>`;
-                    }else{
-                        item_content += `   <div class='img22 img_border'></div></div>
-                                        <div style='display: flex;'>`;
-                    }
-                    
-                    if(item3){
-                        item_content += `   <div class='img22 img_border'>
-                                               <img src='https://ddragon.leagueoflegends.com/cdn/14.14.1/img/item/${item3.image}'></img>
-                                            </div>`;
-                    }else{
-                        item_content += `   <div class='img22 img_border'></div>`;
-                    }
-
-                    if(item4){
-                        item_content += `   <div class='img22 img_border'>
-                                                <img src='https://ddragon.leagueoflegends.com/cdn/14.14.1/img/item/${item4.image}'></img>
-                                            </div>`;
-                    }else{
-                        item_content += `   <div class='img22 img_border'></div>`;
-                    }
-
-                    if(item5){
-                        item_content += `   <div class='img22 img_border'>
-                                                <img src='https://ddragon.leagueoflegends.com/cdn/14.14.1/img/item/${item5.image}'></img>
-                                            </div>`;
-                    }else{
-                        item_content += `<div class='img22 img_border'></div></div>`;
-                    }
-                    
-                    /* 매치 결과 */
-                    let match_result = [];
-                    if(gameDuration <= 3){ // 게임시간이 3분 이하인 경우 다시하기
-                        match_result[0] = 're_match';
-                        match_result[1] = '다시하기';
-                    }else{
-                        if(data.win){
-                            match_result[0] = 'win_match';
-                            match_result[1] = '승리';
-                        }else{
-                            match_result[0] = 'defeated_match';
-                            match_result[1] = '패배';
-                        }
-                    }
-
-                    match_info += `<div class='match_info_div ${match_result[0]}'>
-                                        <div style='display: flex; flex-direction: column; width: 140px; justify-content: center;'>
-                                            <div class='match_info_result_div'>
-                                                <div><span>${match_result[1]}</span></div>
-                                                <div style='margin-left: auto;'><span>${gameDuration}분 ${gameDuration_seconds}초</span></div>
-                                            </div>
-                                            <div class='match_info_type_div'>
-                                                <div><span>${queueId_name_map.get(queueId)}</span></div>
-                                                <div style='margin-left: auto;'><span>${basic.func_diff_date(gameStartTimestamp)}</span></div>
-                                            </div>
-                                        </div>`;
-
                     match_info +=       `<div class='champImgDiv'>
                                             <div class='champImg'>    
-                                                <img src='https://ddragon.leagueoflegends.com/cdn/14.14.1/img/champion/${data.championName}.png'>
+                                                <img style='width: 100%; height: 100%; object-fit: cover;' src='https://ddragon.leagueoflegends.com/cdn/14.14.1/img/champion/${data.championName}.png'>
                                             </div>    
                                             <span class='match_info_champLevel'>${data.champLevel}</span>
                                         </div>
                                         <div class='match_info_spell_rune_img'>
-                                            <div class='img22'><img src='https://ddragon.leagueoflegends.com/cdn/14.14.1/img/spell/${summoner1.id}.png'></div>
-                                            <div class='img22'><img src='https://ddragon.leagueoflegends.com/cdn/14.14.1/img/spell/${summoner2.id}.png'></div>
+                                            <div style='width: 22px; heigth: 22px'><img style='width: 100%; height: 100%; object-fit: cover;' src='https://ddragon.leagueoflegends.com/cdn/14.14.1/img/spell/${summoner1.id}.png'></div>
+                                            <div style='width: 22px; heigth: 22px'><img style='width: 100%; height: 100%; object-fit: cover;' src='https://ddragon.leagueoflegends.com/cdn/14.14.1/img/spell/${summoner2.id}.png'></div>
                                         </div>
                                         <div class='match_info_spell_rune_img'>
-                                            <div class='img22'><img src='/img/${primary_rune_top_img}'></div>
-                                            <div class='img22'><img src='/img/${rune_data_map.get(sub_rune).icon}'></div>
-                                        </div>
-                                        <div class='match_info_kda_div'>
-                                            <div><span>${kills} / <span class='deaths_span'>${deaths}</span> / ${assists}</span></div>
-                                            <div><span>${kda}</span></div>
-                                            <div><span>킬관여 ${team_rate}</span></div>
-                                        </div>
-                                        <div class='match_info_item_div'>
-                                            ${item_content}
+                                            <div style='width: 22px; heigth: 22px'><img style='width: 100%; height: 100%; object-fit: cover;' src='/img/${primary_rune_top_img}'></div>
+                                            <div style='width: 22px; heigth: 22px'><img style='width: 100%; height: 100%; object-fit: cover;' src='/img/${rune_data_map.get(sub_rune).icon}'></div>
                                         </div>
                                     </div>`;
                 }
             });
             console.log("=================================================");
-            
             newProfile.find('.match_info').append(match_info);
         }
-
-        function func_position_setting(position_cnt_map, newProfile){
-            let labels = [];
-            let data = [];
-            let maxValue = 0;
-
-            position_cnt_map.forEach((value, key) => {
-                if (key !== "UNKNOWN") {
-                    if(key === 'TOP') labels.push('탑');
-                    else if(key === 'JUNGLE') labels.push('정글');
-                    else if(key === 'MIDDLE') labels.push('미드');
-                    else if(key === 'BOTTOM') labels.push('원딜');
-                    else if(key === 'UTILITY') labels.push('서폿');
-
-                    data.push(value);
-                    if (value > maxValue) {
-                        maxValue = value;
-                    }
-                }
-            });
-
-            const normalizedData = data.map(value => (value / maxValue) * 10);
-
-            const ctx = newProfile.find('.positionChart').find('#chart')[0].getContext('2d');
-            new Chart(ctx, {
-                type: 'radar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Position Counts',
-                        data: normalizedData,
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1,
-                        pointBackgroundColor: 'rgba(54, 162, 235, 1)'
-                    }]
-                },
-                options: {
-                    plugins: {
-                        legend: {
-                            display: false // 범례 숨기기
-                        },
-                        tooltip: {
-                            enabled: false // 툴팁 숨기기
-                        }
-                    },
-                    scales: {
-                        r: {
-                            angleLines: {
-                                display: true
-                            },
-                            suggestedMin: 0,
-                            suggestedMax: 10,
-                            ticks: {
-                                display: false // 눈금 라벨 숨기기
-                            },
-                        }
-                    },
-                    elements: {
-                        point: {
-                            radius: 0 // 포인트를 보이지 않게 설정
-                        }
-                    }
-                }
-            });
-        }
-
+        
     }
 
 })
