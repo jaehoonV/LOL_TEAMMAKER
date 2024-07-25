@@ -294,14 +294,6 @@ $(function () {
         $(this).closest('.userInfo-container').remove();
     })
 
-    $(document).on('mouseover', '.img_item_div', function() {
-        $(this).find('.item_description').show();
-    });
-
-    $(document).on('mouseout', '.img_item_div', function() {
-        $(this).find('.item_description').hide();
-    });
-
     function createProfileCard(){
         let user_id = $('#userId').val();
 
@@ -597,69 +589,62 @@ $(function () {
                     let item6 = data.item6 != 0 ? item_data_map.get(data.item6) : '';
 
                     let item_content = `<div style='display: flex;'>
-                                            <div class='img22 img_item_div'>`;
+                                            <div class='img22 img_border'>`;
                     if(item0){
                         item_content += `       <img src='https://ddragon.leagueoflegends.com/cdn/14.14.1/img/item/${item0.image}'></img>
-                                                <div class='item_description'><span class='item_name'>< ${item0.name} ></span><br>${item0.description}</div>
                                             </div>`;
                     }else{
                         item_content += `   </div>`;
                     }
 
                     if(item1){
-                        item_content += `   <div class='img22 img_item_div'>
+                        item_content += `   <div class='img22 img_border'>
                                                 <img src='https://ddragon.leagueoflegends.com/cdn/14.14.1/img/item/${item1.image}'></img>
-                                                <div class='item_description'><span class='item_name'>< ${item1.name} ></span><br>${item1.description}</div>
                                             </div>`;
                     }else{
-                        item_content += `<div class='img22 img_item_div'></div>`;
+                        item_content += `<div class='img22 img_border'></div>`;
                     }
 
                     if(item2){
-                        item_content += `   <div class='img22 img_item_div'>
+                        item_content += `   <div class='img22 img_border'>
                                                 <img src='https://ddragon.leagueoflegends.com/cdn/14.14.1/img/item/${item2.image}'></img>
-                                                <div class='item_description'><span class='item_name'>< ${item2.name} ></span><br>${item2.description}</div>
                                             </div>`;
                     }else{
-                        item_content += `   <div class='img22 img_item_div'></div>`;
+                        item_content += `   <div class='img22 img_border'></div>`;
                     }
 
                     if(item6){
-                        item_content += `   <div class='img22 img_item_div'>
+                        item_content += `   <div class='img22 img_border'>
                                                 <img src='https://ddragon.leagueoflegends.com/cdn/14.14.1/img/item/${item6.image}'></img>
-                                                <div class='item_description'><span class='item_name'>< ${item6.name} ></span><br>${item6.description}</div>
                                             </div></div>
                                         <div style='display: flex;'>`;
                     }else{
-                        item_content += `   <div class='img22 img_item_div'></div></div>
+                        item_content += `   <div class='img22 img_border'></div></div>
                                         <div style='display: flex;'>`;
                     }
                     
                     if(item3){
-                        item_content += `   <div class='img22 img_item_div'>
+                        item_content += `   <div class='img22 img_border'>
                                                <img src='https://ddragon.leagueoflegends.com/cdn/14.14.1/img/item/${item3.image}'></img>
-                                               <div class='item_description'><span class='item_name'>< ${item3.name} ></span><br>${item3.description}</div>
                                             </div>`;
                     }else{
-                        item_content += `   <div class='img22 img_item_div'></div>`;
+                        item_content += `   <div class='img22 img_border'></div>`;
                     }
 
                     if(item4){
-                        item_content += `   <div class='img22 img_item_div'>
+                        item_content += `   <div class='img22 img_border'>
                                                 <img src='https://ddragon.leagueoflegends.com/cdn/14.14.1/img/item/${item4.image}'></img>
-                                                <div class='item_description'><span class='item_name'>< ${item4.name} ></span><br>${item4.description}</div>
                                             </div>`;
                     }else{
-                        item_content += `   <div class='img22 img_item_div'></div>`;
+                        item_content += `   <div class='img22 img_border'></div>`;
                     }
 
                     if(item5){
-                        item_content += `   <div class='img22 img_item_div'>
+                        item_content += `   <div class='img22 img_border'>
                                                 <img src='https://ddragon.leagueoflegends.com/cdn/14.14.1/img/item/${item5.image}'></img>
-                                                <div class='item_description'><span class='item_name'>< ${item5.name} ></span><br>${item5.description}</div>
                                             </div>`;
                     }else{
-                        item_content += `<div class='img22 img_item_div'></div></div>`;
+                        item_content += `<div class='img22 img_border'></div></div>`;
                     }
                     
                     /* 매치 결과 */
