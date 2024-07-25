@@ -1,22 +1,16 @@
 $(function () {
+    const proxy_url = `https://cors-anywhere.herokuapp.com/`; // 로컬 환경에서 cors 문제 해결을 위한 프록시서버 주소
+    /* const account_get_puuid = proxy_url + `https://asia.api.riotgames.com/riot/account/v1/accounts/by-riot-id/`;
+    const account_get_summoner = proxy_url + `https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/`;
+    const account_get_league = proxy_url + `https://kr.api.riotgames.com/lol/league/v4/entries/by-summoner/`;
+    const account_get_champion = proxy_url + `https://kr.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/`; */
+
     const account_get_puuid = `https://asia.api.riotgames.com/riot/account/v1/accounts/by-riot-id/`;
     const account_get_summoner = `https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/`;
     const account_get_league = `https://kr.api.riotgames.com/lol/league/v4/entries/by-summoner/`;
     const account_get_champion = `https://kr.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/`;
     
-    let api_key;
-
-    let api_key_xmlhttp = new XMLHttpRequest();
-    let url = "api_key.json";
-
-    api_key_xmlhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-            let api_key_json = JSON.parse(api_key_xmlhttp.responseText);
-            api_key = api_key_json.api_key;
-        }
-    };
-    api_key_xmlhttp.open("GET", url, true);
-    api_key_xmlhttp.send();
+    const api_key = `RGAPI-00a9abaf-3144-4a8d-8050-754e4acbf14a`;
 
     /* 챔피언 json data */
     /* let champion_json_url = proxy_url + `https://ddragon.leagueoflegends.com/cdn/14.14.1/data/ko_KR/champion.json`; */
@@ -59,16 +53,7 @@ $(function () {
 
     $('#score').on("keyup", function (key) {
         if (key.keyCode == 13) {
-            let nickName = $('#nickName').val();
             createUserCard();
-
-            // '닉네임#태그'인 경우 프로필 생성
-            const regex = /^.*#.*$/;
-
-            if(regex.test(nickName)){
-                $('#userId').val(nickName);
-                createProfileCard();
-            };
         }
     })
 
@@ -207,27 +192,13 @@ $(function () {
         $('#b_container').append(`<div class="teamName"> Team B - Total Score: ${teamBScore} </div>`);
     }
 
-    $('#userId').on("keyup", function (key) {
-        if (key.keyCode == 13) {
-            createProfileCard();
-        }
-    })
-
     $('#search_btn').on("click", function () {
-        createProfileCard();
-    })
-
-    $(document).on("click", ".userInfo_drop_btn", function () {
-        $(this).closest('.userInfo-container').remove();
-    })
-
-    function createProfileCard(){
         let user_id = $('#userId').val();
 
         let gameName = user_id.split("#")[0];
         let tagLine = user_id.split("#")[1];
 
-        let url_get_puuid = `/get_puuid/${gameName}/${tagLine}/${api_key}`;
+        let url_get_puuid = account_get_puuid + gameName + "/" + tagLine + "?api_key=" + api_key;
 
         fetch(url_get_puuid)
         .then(res => res.json())
@@ -238,7 +209,6 @@ $(function () {
 
             if(puuid_data){
                 let profile = `<div class="userInfo-container">
-                                    <div style='display: flex; flex-direction: row-reverse;'><span class='userInfo_drop_btn'>X</span></div>
                                     <div style='display: flex;'>
                                         <div class='profile_icon'></div>    
                                         <div style='display: flex; flex-direction: column;'>
@@ -250,14 +220,14 @@ $(function () {
                                                 <span class='profile_level'>레벨 : <span class='profile_level_tag'></span></span>
                                             </div>
                                             <div style='padding: 5px 5px 0px 8px; font-size: 12px;'>
-                                                <span class='solo_rank'><span style='width: 150px; display: inline-block;'>솔로 : <span class='tier_solo'></span></span> <span class='cnt_solo'></span>전 승 : <span class='wins_solo'></span> / 패 : <span class='losses_solo'></span> (<span class='rate_solo'></span>%)</span>
-                                                <span class='free_rank'><span style='width: 150px; display: inline-block;'>자유 : <span class='tier_free'></span></span> <span class='cnt_free'></span>전 승 : <span class='wins_free'></span> / 패 : <span class='losses_free'></span> (<span class='rate_free'></span>%)</span>
+                                                <span class='solo_rank'><span style='width: 130px; display: inline-block;'>솔로 : <span class='tier_solo'></span></span> <span class='cnt_solo'></span>전 승 : <span class='wins_solo'></span> / 패 : <span class='losses_solo'></span> (<span class='rate_solo'></span>%)</span>
+                                                <span class='free_rank'><span style='width: 130px; display: inline-block;'>자유 : <span class='tier_free'></span></span> <span class='cnt_free'></span>전 승 : <span class='wins_free'></span> / 패 : <span class='losses_free'></span> (<span class='rate_free'></span>%)</span>
                                             </div>
                                         </div>    
                                     </div>
                                     <div style='display: flex; flex-direction: column;'>
                                         <span style='font-size:14px; margin:5px;'>숙련도</span>
-                                        <div class='top_champion'></div>
+                                        <div class='top_champion' style='display: flex;'></div>
                                     </div>
                                     
                                 </div>`;
@@ -276,8 +246,6 @@ $(function () {
                 .then(res => res.json())
                 .then(data => func_champion(data, newProfile));
 
-            }else{
-                alert("해당 이름의 소환사를 찾을 수 없습니다.\n정확한 태그명(#????)과 함께 검색해 주세요.");
             }
             
         }
@@ -338,30 +306,22 @@ $(function () {
         function func_champion(data, newProfile){
             let top_champion = ``;
             for(let i in data){
-                if(i > 20) break;
+                if(i > 7) break;
                 let champ_id = data[i].championId;
                 let champ_level = data[i].championLevel;
                 let champion = champion_data_map.get(champ_id);
 
                 top_champion += `<div>
-                                    <div><img style='width: 60px;' src='https://ddragon.leagueoflegends.com/cdn/14.14.1/img/champion/${champion.id}.png'></div>
-                                    <div style='display:flex; font-size:12px; flex-direction: column;'>
-                                        <div style='margin: 0 auto;'>`;
-                
-                let champ_img = ``;
-                if(champ_level < 10){
-                    champ_img = `<img style='width: 33px;' src='/img/mastery-${champ_level}.png'>`;
-                }else{
-                    champ_img = `<img style='width: 33px;' src='/img/mastery-10.png'><div style='text-align: center;'><span class='champ_level_tag'>${champ_level}</span></div>`;
-                }
-
-                top_champion += `${champ_img}</div>
+                                    <div><img style='width: 50px;' src='https://ddragon.leagueoflegends.com/cdn/14.14.1/img/champion/${champion.id}.png'></div>
+                                    <div style='display:flex; font-size:12px;'>
+                                        <div style='margin: 0 auto;'>${champ_level}</div>
                                     </div>
                                 </div>`;
             }
 
             newProfile.find('.top_champion').append(top_champion);
         }
-    }
+
+    })
 
 })
