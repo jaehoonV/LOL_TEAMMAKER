@@ -211,11 +211,3 @@ body {
     border-radius: 60%; 
     overflow: hidden;
 }
-
-.match_info_spell_rune_img{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 3px;
-    margin-right: 3px;
-}
